@@ -106,7 +106,7 @@ The dashboard includes filters for date, country, stock code, and product descri
 
 ### Dashboard Preview
 
-![Retail Customer and Sales Analysis Dashboard](power%20bi%20retail%20sales%20screenshot_.png)
+![Retail Customer and Sales Analysis Dashboard](<power bi retail sales screenshot_.png>)
 
 ## 8. SQL Analysis
 
