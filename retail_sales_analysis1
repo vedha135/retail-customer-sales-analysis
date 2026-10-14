@@ -1,0 +1,101 @@
+-- Retail Customer & Sales Intelligence Analysis
+-- Oracle 10g-compatible SQL queries.
+-- Prerequisite: cleaned_sales table has already been imported from cleaned_sales.csv.
+-- Run one query at a time in SQL*Plus, or use @retail_sales_analysis.sql.
+SET LINESIZE 220
+SET PAGESIZE 100
+SET TRIMSPOOL ON
+COLUMN Country FORMAT A24
+COLUMN Description FORMAT A42
+COLUMN YearMonth FORMAT A10
+COLUMN CustomerID FORMAT 999999
+COLUMN StockCode FORMAT A12
+
+-- 01. Overall sales KPIs
+SELECT SUM(Revenue) AS Total_Sales,
+       SUM(Quantity) AS Total_Quantity,
+       COUNT(DISTINCT InvoiceNo) AS Total_Orders,
+       COUNT(DISTINCT CustomerID) AS Total_Customers,
+       COUNT(DISTINCT StockCode) AS Total_Products
+FROM cleaned_sales;
+
+-- 02. Monthly revenue trend
+SELECT YearMonth, ROUND(SUM(Revenue), 2) AS Monthly_Revenue
+FROM cleaned_sales
+GROUP BY YearMonth
+ORDER BY YearMonth;
+
+-- 03. Top 10 countries by revenue (Oracle 10g)
+SELECT Country, Total_Revenue
+FROM (
+    SELECT Country, ROUND(SUM(Revenue), 2) AS Total_Revenue
+    FROM cleaned_sales
+    GROUP BY Country
+    ORDER BY SUM(Revenue) DESC
+)
+WHERE ROWNUM <= 10;
+
+-- 04. Top 10 products by revenue (Oracle 10g)
+SELECT StockCode, Description, Total_Revenue
+FROM (
+    SELECT StockCode, Description, ROUND(SUM(Revenue), 2) AS Total_Revenue
+    FROM cleaned_sales
+    GROUP BY StockCode, Description
+    ORDER BY SUM(Revenue) DESC
+)
+WHERE ROWNUM <= 10;
+
+-- 05. Top 10 customers by revenue (Oracle 10g)
+SELECT CustomerID, Total_Revenue, Total_Orders, Total_Quantity
+FROM (
+    SELECT CustomerID,
+           ROUND(SUM(Revenue), 2) AS Total_Revenue,
+           COUNT(DISTINCT InvoiceNo) AS Total_Orders,
+           SUM(Quantity) AS Total_Quantity
+    FROM cleaned_sales
+    WHERE CustomerID IS NOT NULL
+    GROUP BY CustomerID
+    ORDER BY SUM(Revenue) DESC
+)
+WHERE ROWNUM <= 10;
+
+-- 06. Average order value
+SELECT ROUND(AVG(Order_Revenue), 2) AS Average_Order_Value
+FROM (
+    SELECT InvoiceNo, SUM(Revenue) AS Order_Revenue
+    FROM cleaned_sales
+    GROUP BY InvoiceNo
+);
+
+-- 07. Revenue and quantity by country (top 10 quantity)
+SELECT Country, Total_Quantity
+FROM (
+    SELECT Country, SUM(Quantity) AS Total_Quantity
+    FROM cleaned_sales
+    GROUP BY Country
+    ORDER BY SUM(Quantity) DESC
+)
+WHERE ROWNUM <= 10;
+
+-- 08. Cancellation vs non-cancellation summary
+SELECT IsCancellation,
+       COUNT(*) AS Row_Count,
+       ROUND(SUM(Revenue), 2) AS Total_Revenue
+FROM cleaned_sales
+GROUP BY IsCancellation
+ORDER BY IsCancellation;
+
+-- 09. Missing customer IDs
+SELECT COUNT(*) AS Missing_CustomerID_Rows
+FROM cleaned_sales
+WHERE CustomerID IS NULL;
+
+-- 10. Monthly order count
+SELECT YearMonth, Total_Orders
+FROM (
+    SELECT YearMonth, COUNT(DISTINCT InvoiceNo) AS Total_Orders
+    FROM cleaned_sales
+    GROUP BY YearMonth
+    ORDER BY YearMonth
+);
+
