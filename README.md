@@ -104,10 +104,6 @@ The Power BI dashboard, titled **Retail Customer & Sales Analysis**, combines hi
 
 The dashboard includes filters for date, country, stock code, and product description, allowing users to explore different portions of the data.
 
-### Dashboard Preview
-
-![Retail Customer and Sales Analysis Dashboard](<power bi retail sales screenshot_.png>)
-
 ## 8. SQL Analysis
 
 SQL is used to formulate business questions and analyze structured sales data.
